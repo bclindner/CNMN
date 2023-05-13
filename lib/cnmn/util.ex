@@ -9,8 +9,8 @@ defmodule CNMN.Util do
   Helpful for certain tasks operating on large files, like video
   or image manipulation.
   """
-  @spec to_tempfile!(String.t(), String.t()) :: String.t()
-  def to_tempfile!(url, filepath) do
+  @spec download!(String.t(), String.t()) :: String.t()
+  def download!(url, filepath) do
     Application.ensure_all_started :inets
     url = to_charlist(url)
     {:ok, :saved_to_file} = :httpc.request(:get, {url, []}, [ssl: [{:verify, :verify_peer},{:cacerts, :public_key.cacerts_get()}]], stream: to_charlist(filepath))
@@ -20,7 +20,7 @@ defmodule CNMN.Util do
   @doc """
   Reply to a post.
   """
-  @spec reply!(Discord.Message.t(), String.t()) :: Discord.Message.t()
+  @spec reply!(Discord.Message.t(), binary()) :: Discord.Message.t()
   def reply!(msg, content) do
     Api.create_message!(
       msg.channel_id,

@@ -16,7 +16,7 @@ defmodule CNMN.Command.Crunch do
     case Util.find_image(msg) do
       nil -> Util.reply!(msg, "Couldn't find an image!")
       url ->
-        Util.to_tempfile!(url, infile)
+        Util.download!(url, infile)
         |> Mogrify.open()
         |> Image.crunch(50)
         |> Image.save(outfile)

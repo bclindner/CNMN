@@ -5,6 +5,7 @@ config :cnmn,
   commands: [
     CNMN.Command.Ping,
     CNMN.Command.Crunch,
+    CNMN.Command.Music,
   ],
   admins: [82984152671985664]
 
@@ -14,6 +15,7 @@ config :nostrum,
     :guilds,
     :guild_messages,
     :guild_message_reactions,
+    :guild_voice_states,
     :message_content
   ]
 
