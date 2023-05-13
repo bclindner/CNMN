@@ -20,6 +20,10 @@ defmodule CNMN.MixProject do
   end
 
   defp deps do
-    [{:nostrum, "~> 0.7.0-rc2"}]
+    [
+      {:nostrum, "~> 0.7.0-rc2"},
+      {:mogrify, "~> 0.9.2"},
+      {:temp, "~> 0.4"}
+    ]
   end
 end

@@ -1,13 +1,28 @@
 defmodule CNMN.CommandRouter do
-  defp prefix, do: Application.get_env(:cnmn, :prefix)
-  defp commands, do: Application.get_env(:cnmn, :commands)
+  @moduledoc """
+  Router for CNMN's plain-text command messages. Uses CNMN.Command modules
+  specified in the application config to handle percieved commands when a
+  message is received.
+  """
+
+  @doc """
+  Prefix the CommandRouter is checking each message for.
+  """
+  def prefix, do: Application.get_env(:cnmn, :prefix)
+
+  @doc """
+  Commands the CommandRouter is allowing to handle its commands.
+  This is pulled from the Application configuration.
+  """
+  def commands, do: Application.get_env(:cnmn, :commands)
+
   defp is_command(msg), do: String.starts_with?(msg.content, prefix())
 
-  def tokenize(string) do
+  defp tokenize(string) do
     prefix_len = byte_size(prefix())
 
     string
-    # cut the prefix off
+    # cut the prefix
     |> binary_part(prefix_len, byte_size(string) - prefix_len)
     # split into string
     |> String.split(" ", trim: true)
