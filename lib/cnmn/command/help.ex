@@ -11,20 +11,24 @@ defmodule CNMN.Command.Help do
     "#{cmdname} <command>" gives usage for a specific command.
     """
 
-  @doc """
-  Returns a map of registered commands to names.
-  """
-  def cmdmap, do: Map.new(Router.commands(), &{&1.name(), &1})
+  # name of a command including the CommandRouter prefix
+  defp cmdname(cmd), do: Router.prefix() <> cmd.name()
 
-  def command_summary(cmd), do: cmd.name() <> ": " <> cmd.desc()
+  # a map of registered commands to names
+  defp cmdmap, do: Map.new(Router.commands(), &{&1.name(), &1})
 
-  def command_summaries do
+  # command summary string
+  defp command_summary(cmd), do: cmd.name() <> ": " <> cmd.desc()
+
+  # all command summaries (for !help)
+  defp command_summaries do
     Enum.map(Router.commands(), &command_summary(&1))
     |> Enum.join("\n")
   end
 
-  def command_desc(cmd) do
-    command_summary(cmd) <> "\n\n" <> cmd.usage(Router.prefix() <> cmd.name())
+  # command description string (for !help <command>)
+  defp command_desc(cmd) do
+    command_summary(cmd) <> "\n\n" <> cmd.usage(cmdname(cmd))
   end
 
   def handle([cmdname], msg) do
