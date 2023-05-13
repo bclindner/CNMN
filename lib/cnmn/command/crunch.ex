@@ -1,11 +1,17 @@
 defmodule CNMN.Command.Crunch do
+  @command_name "crunch"
+  @command_desc "Content-aware scale a provided image."
   use CNMN.Command
   require Mogrify
   alias CNMN.{Util, Image}
 
-  def name, do: "crunch"
-
-  def desc, do: "Content-aware scale a provided image."
+  def usage(cmdname) do
+    """
+    Post a Discord image URL or image (or reply to a post that does so) with
+    #{cmdname} to "crunch" it (i.e. content aware scale it) to 50% of its
+    current size.
+    """
+  end
 
   def handle(_args, msg) do
     id = to_string(msg.id)

@@ -1,10 +1,10 @@
 defmodule CNMN.Command.Ping do
+  @command_name "ping"
+  @command_desc "Send a message immediately when received."
   use CNMN.Command
   alias CNMN.Util
 
-  def name, do: "ping"
-
-  def desc, do: "Send a message immediately when received."
+  def usage(cmdname), do: "Just type #{cmdname}"
 
   def handle(_args, msg) do
     Util.reply!(

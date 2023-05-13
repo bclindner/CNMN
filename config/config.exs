@@ -3,6 +3,7 @@ import Config
 config :cnmn,
   prefix: ",",
   commands: [
+    CNMN.Command.Help,
     CNMN.Command.Ping,
     CNMN.Command.Crunch
   ],
