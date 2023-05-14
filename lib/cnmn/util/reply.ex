@@ -1,6 +1,6 @@
 defmodule CNMN.Util.Reply do
   @moduledoc """
-  Functions for sending consistent replies.
+  Functions for sending styled replies.
   """
 
   @cnmn_ok 0x1FEEFA
@@ -26,8 +26,7 @@ defmodule CNMN.Util.Reply do
           name: track.uploader,
           url: track.uploader_url
         }
-      }
-      |> styled_embed(),
+      },
       msg,
       opts
     )
@@ -36,7 +35,7 @@ defmodule CNMN.Util.Reply do
   def embed!(embed, msg, opts \\ []) do
     Api.create_message!(
       msg.channel_id,
-      embeds: [embed],
+      embeds: [styled_embed(embed)],
       content: Keyword.get(opts, :content, ""),
       message_reference: %{message_id: msg.id}
     )

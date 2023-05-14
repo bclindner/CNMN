@@ -3,6 +3,7 @@ defmodule CNMN.Application do
   Base application for starting CNMN.
   """
   use Application
+  alias Nostrum.Api
 
   def start(_type, _args) do
     children = [
@@ -14,6 +15,8 @@ defmodule CNMN.Application do
       CNMN.Command.Music.Consumer
     ]
 
-    Supervisor.start_link(children, strategy: :one_for_one)
+    result = Supervisor.start_link(children, strategy: :one_for_one)
+    Api.update_status(:online, "Hi-Fi Rush")
+    result
   end
 end

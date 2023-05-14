@@ -15,7 +15,7 @@ defmodule CNMN.Image do
     pctstring(percentage) <> "x" <> pctstring(percentage)
   end
 
-  def crunch(image, factor) do
+  def crunch(image, factor \\ 50) do
     image |> Mog.custom("liquid-rescale", factorstring(factor))
   end
 
@@ -31,26 +31,30 @@ defmodule CNMN.Image do
   temporary file, transforms it with the ImageMagick wrapper Mogrify, then
   returns it as a reply.
   """
-  def transform(msg, transformer) do
-    id = to_string(msg.id)
-    Temp.track!()
-    temppath = Temp.mkdir!(id)
-    infile = Path.join(temppath, "input")
-    outfile = Path.join(temppath, "output.png")
+  def transform(msg, transformer, opts \\ []) do
+    unless msg.author.bot do
+      id = to_string(msg.id)
+      Temp.track!()
+      temppath = Temp.mkdir!(id)
+      infile = Path.join(temppath, "input")
+      outfile = Path.join(temppath, "output.png")
 
-    case Util.find_image(msg) do
-      nil ->
-        Reply.text!(
-          "Couldn't find an image - did you upload an image, or reply to an uploaded image?",
-          msg
-        )
+      case Util.find_image(msg) do
+        nil ->
+          unless Keyword.get(opts, :quiet) == true do
+            Reply.text!(
+              "Couldn't find an image - did you upload an image, or reply to an uploaded image?",
+              msg
+            )
+          end
 
-      url ->
-        Util.download!(url, infile)
-        |> Mogrify.open()
-        |> transformer.()
-        |> save(outfile)
-        |> Reply.file!(msg)
+        url ->
+          Util.download!(url, infile)
+          |> Mogrify.open()
+          |> transformer.()
+          |> save(outfile)
+          |> Reply.file!(msg)
+      end
     end
   end
 end
