@@ -63,8 +63,13 @@ defmodule CNMN.Command.Music do
 
   # player queue string builder
   defp queue_string(tracks, strings \\ [], count \\ 1)
+
   defp queue_string([track | queue], strings, count) do
     queue_string(queue, strings ++ ["**#{count}.** #{track.title}"], count + 1)
+  end
+
+  defp queue_string([], [], _count) do
+    "No items in queue"
   end
 
   defp queue_string([], strings, _count) do
@@ -99,7 +104,6 @@ defmodule CNMN.Command.Music do
       end
     end
   end
-
 
   # with the play arg and a ytdl-compatible url, play the url in the user's
   # joined channel
@@ -164,5 +168,4 @@ defmodule CNMN.Command.Music do
       Reply.text!("Stopped.", msg)
     end
   end
-
 end

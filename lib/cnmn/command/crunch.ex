@@ -3,9 +3,7 @@ defmodule CNMN.Command.Crunch do
   @command_desc "Content-aware scale a provided image."
 
   use CNMN.Command
-  require Mogrify
-  alias CNMN.{Util, Image}
-  alias CNMN.Util.Reply
+  alias CNMN.Image
 
   def usage(cmdname),
     do: """
@@ -15,22 +13,6 @@ defmodule CNMN.Command.Crunch do
     """
 
   def handle(_args, msg) do
-    id = to_string(msg.id)
-    Temp.track!()
-    temppath = Temp.mkdir!(id)
-    infile = Path.join(temppath, "input")
-    outfile = Path.join(temppath, "output.png")
-
-    case Util.find_image(msg) do
-      nil ->
-        Reply.text!("Couldn't find an image - did you upload an image, or reply to an uploaded image?", msg)
-
-      url ->
-        Util.download!(url, infile)
-        |> Mogrify.open()
-        |> Image.crunch(50)
-        |> Image.save(outfile)
-        |> Reply.file!(msg)
-    end
+    Image.transform(msg, &Image.crunch/2)
   end
 end

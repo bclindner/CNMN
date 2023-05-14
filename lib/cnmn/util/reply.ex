@@ -6,8 +6,10 @@ defmodule CNMN.Util.Reply do
   @cnmn_ok 0x1FEEFA
   alias Nostrum.Api
   alias Nostrum.Struct.Embed
+
   defp styled_embed(embed) do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
+
     embed
     |> Embed.put_color(@cnmn_ok)
     |> Embed.put_footer("CNMN", nil)
