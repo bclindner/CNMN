@@ -18,4 +18,5 @@ config :nostrum,
     :guild_message_reactions,
     :guild_voice_states,
     :message_content
-  ]
+  ],
+  youtubedl: "yt-dlp"
