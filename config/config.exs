@@ -3,11 +3,12 @@ import Config
 config :cnmn,
   prefix: ",",
   commands: [
+    CNMN.Command.Help,
     CNMN.Command.Ping,
-    CNMN.Command.Crunch,
     CNMN.Command.Music,
+    CNMN.Command.Crunch
   ],
-  admins: [82984152671985664]
+  admins: [82_984_152_671_985_664]
 
 config :nostrum,
   token: System.get_env("BOT_TOKEN"),
@@ -18,4 +19,3 @@ config :nostrum,
     :guild_voice_states,
     :message_content
   ]
-
