@@ -4,7 +4,7 @@ defmodule CNMN.MixProject do
   def project do
     [
       app: :cnmn,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -19,7 +19,7 @@ defmodule CNMN.MixProject do
     ]
   end
 
-  defp deps do
+  def deps do
     [
       {:nostrum, "~> 0.7.0-rc2"},
       {:mogrify, "~> 0.9.2"},
