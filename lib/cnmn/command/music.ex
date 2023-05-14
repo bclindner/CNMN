@@ -3,10 +3,11 @@ defmodule CNMN.Command.Music do
   @command_desc "Play music."
 
   use CNMN.Command
-  alias CNMN.Util
+  alias CNMN.Util.Reply
+  alias Nostrum.Struct.Embed
   alias Nostrum.Voice
   alias Nostrum.Cache.{GuildCache}
-  alias CNMN.Command.Music.{Agent, Consumer}
+  alias CNMN.Command.Music.Manager
 
   def usage(cmdname),
     do: """
@@ -16,9 +17,10 @@ defmodule CNMN.Command.Music do
     #{cmdname} stop: Stop playing music.
     """
 
+  # checks for user connectivity
   @spec get_user_channel(Nostrum.Snowflake.t(), Nostrum.Snowflake.t()) ::
           Nostrum.Snowflake.t() | nil
-  def get_user_channel(guild_id, user_id) do
+  defp get_user_channel(guild_id, user_id) do
     guild_id
     |> GuildCache.get!()
     |> Map.get(:voice_states)
@@ -26,13 +28,10 @@ defmodule CNMN.Command.Music do
     |> Map.get(:channel_id)
   end
 
-  def ensure_user_in_voice(msg) do
+  defp ensure_user_in_voice(msg) do
     case get_user_channel(msg.guild_id, msg.author.id) do
       nil ->
-        Util.reply!(
-          msg,
-          "You are not currently in a voice channel"
-        )
+        Reply.text!("You are not currently in a voice channel.", msg)
 
         nil
 
@@ -41,33 +40,66 @@ defmodule CNMN.Command.Music do
     end
   end
 
-  defp play(guild_id, channel_id, url) do
-    # if we are not currently playing, clear the queue
-    unless Voice.playing?(guild_id) do
-      Agent.clear(guild_id)
-    end
+  def ensure_user_in_same_channel(msg) do
+    channel_id = ensure_user_in_voice(msg)
 
-    # queue it up (early, so the voice consumer can get to it)
-    Agent.push(guild_id, url)
-    # if we are not in the user's channel, join their channel
-    if Voice.get_channel_id(guild_id) != channel_id do
-      Voice.join_channel(guild_id, channel_id)
-    end
+    case channel_id do
+      nil ->
+        nil
 
-    # finally, if we are ready and not playing, then let's run the player
-    if Voice.ready?(guild_id) && !Voice.playing?(guild_id) do
-      Consumer.run_player(guild_id)
+      channel_id ->
+        if channel_id != Voice.get_channel_id(msg.guild_id) do
+          Reply.text!(
+            "You have to be in the same voice channel as the bot to do that.",
+            msg
+          )
+
+          nil
+        end
+
+        channel_id
     end
   end
 
-  # with join arg, join the user's channel
-  def handle(["join"], msg) do
+  # player queue string builder
+  defp queue_string(tracks, strings \\ [], count \\ 1)
+  defp queue_string([track | queue], strings, count) do
+    queue_string(queue, strings ++ ["**#{count}.** #{track.title}"], count + 1)
+  end
+
+  defp queue_string([], strings, _count) do
+    Enum.join(strings, "\n")
+  end
+
+  # with no args, simply print the guild queue
+  def handle([], msg) do
     voice_channel_id = ensure_user_in_voice(msg)
 
     unless voice_channel_id == nil do
-      Voice.join_channel(msg.guild_id, voice_channel_id)
+      state = Manager.get_state(msg.guild_id)
+
+      unless state.current == nil do
+        Reply.embed!(
+          %Embed{
+            fields: [
+              %Embed.Field{
+                name: "Now Playing",
+                value: state.current.title
+              },
+              %Embed.Field{
+                name: "Queue",
+                value: queue_string(state.queue)
+              }
+            ]
+          },
+          msg
+        )
+      else
+        Reply.text!("Not currently playing anything.", msg)
+      end
     end
   end
+
 
   # with the play arg and a ytdl-compatible url, play the url in the user's
   # joined channel
@@ -75,38 +107,62 @@ defmodule CNMN.Command.Music do
     channel_id = ensure_user_in_voice(msg)
 
     unless channel_id == nil do
-      play(msg.guild_id, channel_id, {url, :ytdl})
-      # Notify the user that we have added the URL to the queue
-      Util.reply!(msg, "Added to queue: #{url}")
+      # if we are not currently playing, clear the queue
+      unless Voice.playing?(msg.guild_id) do
+        Manager.clear(msg.guild_id)
+      end
+
+      # queue it up (before we join, so the manager sees it)
+      data = Manager.push(msg.guild_id, url)
+      # if we are not in the user's channel, join their channel
+      if Voice.get_channel_id(msg.guild_id) != channel_id do
+        Voice.join_channel(msg.guild_id, channel_id)
+      end
+
+      # finally, if we are ready and not playing, then let's run the player
+      if Voice.ready?(msg.guild_id) && !Voice.playing?(msg.guild_id) do
+        Manager.run_player(msg.guild_id)
+      end
+
+      Reply.track!(data, msg, content: "Queued:")
     end
   end
 
-  # with the stop arg, leave the channel
-  def handle(["stop"], msg) do
-    channel_id = ensure_user_in_voice(msg)
+  # with the play arg and no url, resume playing
+  def handle(["play"], msg) do
+    unless ensure_user_in_same_channel(msg) do
+      Manager.play(msg.guild_id)
+      Reply.text!("Playing.", msg)
+    end
+  end
 
-    unless channel_id == nil do
-      if channel_id == Voice.get_channel_id(msg.guild_id) do
-        Voice.leave_channel(msg.guild_id)
-        Util.reply!(msg, "Stopped.")
+  # with the skip arg, skip the current song
+  def handle(["skip"], msg) do
+    if ensure_user_in_same_channel(msg) do
+      next = Manager.skip(msg.guild_id)
+
+      if next do
+        Reply.track!(next, msg, content: "Skipped. Now playing:")
       else
-        Util.reply!(msg, "You aren't in the correct channel to do that.")
+        Reply.text!("Skipped.", msg)
       end
     end
   end
 
-  # with no args, simply print the guild queue
-  def handle(_args, msg) do
-    voice_channel_id = ensure_user_in_voice(msg)
-
-    unless voice_channel_id == nil do
-      reply_text =
-        case Agent.get(msg.guild_id) do
-          [] -> "No songs queued right now."
-          urls -> Enum.each(urls, &("Queue:\n- " <> Enum.join(&1, "\n- ")))
-        end
-
-      Util.reply!(msg, reply_text)
+  # with the stop arg, stop the playing song
+  def handle(["pause"], msg) do
+    if ensure_user_in_same_channel(msg) != nil do
+      Manager.pause(msg.guild_id)
+      Reply.text!("Paused.", msg)
     end
   end
+
+  # with the stop arg, stop the playing song
+  def handle(["stop"], msg) do
+    if ensure_user_in_same_channel(msg) != nil do
+      Manager.stop(msg.guild_id)
+      Reply.text!("Stopped.", msg)
+    end
+  end
+
 end

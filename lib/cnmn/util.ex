@@ -25,18 +25,6 @@ defmodule CNMN.Util do
     filepath
   end
 
-  @doc """
-  Reply to a post.
-  """
-  @spec reply!(Discord.Message.t(), binary()) :: Discord.Message.t()
-  def reply!(msg, content) do
-    Api.create_message!(
-      msg.channel_id,
-      content: content,
-      message_reference: %{message_id: msg.id}
-    )
-  end
-
   # regex for discord images (specifically ones we can process)
   defp discord_img_regex(content) do
     case Regex.scan(
@@ -84,13 +72,5 @@ defmodule CNMN.Util do
       true ->
         nil
     end
-  end
-
-  def post_image!(filepath, msg) do
-    Api.create_message!(
-      msg.channel_id,
-      message_reference: %{message_id: msg.id},
-      file: filepath
-    )
   end
 end

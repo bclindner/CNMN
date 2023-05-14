@@ -8,8 +8,8 @@ defmodule CNMN.Application do
     children = [
       # event consumer
       CNMN.Consumer,
-      # music queue handler agent
-      CNMN.Command.Music.Agent,
+      # music state manager
+      {CNMN.Command.Music.Manager, %{}},
       # music player consumer
       CNMN.Command.Music.Consumer
     ]

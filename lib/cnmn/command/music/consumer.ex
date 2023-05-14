@@ -1,32 +1,20 @@
 defmodule CNMN.Command.Music.Consumer do
   @moduledoc """
-  Consumer for CNMN voice events.
+  Consumer for CNMN voice events. Passes to the Music.Manager.
   """
   use Nostrum.Consumer
-  alias Nostrum.Voice
-  alias CNMN.Command.Music.Agent
-
-  def run_player(guild_id) do
-    # get the first item from the queue and start playing it
-    case Agent.pop(guild_id) do
-      nil ->
-        nil
-
-      {url, type} ->
-        Voice.play(guild_id, url, type)
-    end
-  end
+  alias CNMN.Command.Music.Manager
 
   # if there is a speaking update and the bot is no longer speaking, then we
   # can re-run the player
   def handle_event({:VOICE_SPEAKING_UPDATE, evt, _ws_state}) do
     if !evt.speaking && !evt.timed_out do
-      run_player(evt.guild_id)
+      Manager.run_player(evt.guild_id)
     end
   end
 
   def handle_event({:VOICE_READY, evt, _ws_state}) do
-    run_player(evt.guild_id)
+    Manager.run_player(evt.guild_id)
   end
 
   def handle_event(_other) do

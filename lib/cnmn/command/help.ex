@@ -4,6 +4,7 @@ defmodule CNMN.Command.Help do
 
   use CNMN.Command
   alias CNMN.CommandRouter, as: Router
+  alias CNMN.Util.Reply
 
   def usage(cmdname),
     do: """
@@ -18,7 +19,7 @@ defmodule CNMN.Command.Help do
   defp cmdmap, do: Map.new(Router.commands(), &{&1.name(), &1})
 
   # command summary string
-  defp command_summary(cmd), do: cmd.name() <> ": " <> cmd.desc()
+  defp command_summary(cmd), do: "**" <> cmd.name() <> ":** " <> cmd.desc()
 
   # all command summaries (for !help)
   defp command_summaries do
@@ -38,16 +39,16 @@ defmodule CNMN.Command.Help do
         :error -> "No command found for \"#{cmdname}\""
       end
 
-    Util.reply!(
-      msg,
-      response
+    Reply.text!(
+      response,
+      msg
     )
   end
 
   def handle(_args, msg) do
-    Util.reply!(
-      msg,
-      "Commands:\n" <> command_summaries()
+    Reply.text!(
+      "Commands:\n" <> command_summaries(),
+      msg
     )
   end
 end

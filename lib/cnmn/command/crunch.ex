@@ -5,6 +5,7 @@ defmodule CNMN.Command.Crunch do
   use CNMN.Command
   require Mogrify
   alias CNMN.{Util, Image}
+  alias CNMN.Util.Reply
 
   def usage(cmdname),
     do: """
@@ -22,14 +23,14 @@ defmodule CNMN.Command.Crunch do
 
     case Util.find_image(msg) do
       nil ->
-        Util.reply!(msg, "Couldn't find an image!")
+        Reply.text!("Couldn't find an image - did you upload an image, or reply to an uploaded image?", msg)
 
       url ->
         Util.download!(url, infile)
         |> Mogrify.open()
         |> Image.crunch(50)
         |> Image.save(outfile)
-        |> Util.post_image!(msg)
+        |> Reply.file!(msg)
     end
   end
 end

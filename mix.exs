@@ -23,7 +23,8 @@ defmodule CNMN.MixProject do
     [
       {:nostrum, "~> 0.7.0-rc2"},
       {:mogrify, "~> 0.9.2"},
-      {:temp, "~> 0.4"}
+      {:temp, "~> 0.4"},
+      {:jason, "~> 1.3"}
     ]
   end
 end
