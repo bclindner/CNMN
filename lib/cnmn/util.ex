@@ -11,7 +11,7 @@ defmodule CNMN.Util do
   """
   @spec download!(String.t(), String.t()) :: String.t()
   def download!(url, filepath) do
-    Application.ensure_all_started :inets
+    Application.ensure_all_started(:inets)
     url = to_charlist(url)
 
     {:ok, :saved_to_file} =

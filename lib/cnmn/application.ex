@@ -8,8 +8,10 @@ defmodule CNMN.Application do
     children = [
       # event consumer
       CNMN.Consumer,
-      # music queue agent
-      CNMN.Command.Music.Manager
+      # music queue handler agent
+      CNMN.Command.Music.Agent,
+      # music player consumer
+      CNMN.Command.Music.Consumer
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)

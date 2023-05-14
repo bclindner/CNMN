@@ -1,7 +1,7 @@
 defmodule CNMN.Consumer do
   @moduledoc """
   Root consumer for CNMN event handling.
-  Sends the event to all important parts of the bot platform.
+  Sends events to all important parts of the bot platform.
   """
   use Nostrum.Consumer
 

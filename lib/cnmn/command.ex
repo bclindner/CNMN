@@ -3,9 +3,6 @@ defmodule CNMN.Command do
   Command declaration, usable within CNMN.CommandRouter.
   """
 
-  @command_name "commandname"
-  @command_desc "commanddescription"
-
   @doc """
   A longer description of how to use the command.
   """

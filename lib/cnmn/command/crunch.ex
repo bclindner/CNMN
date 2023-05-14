@@ -6,13 +6,12 @@ defmodule CNMN.Command.Crunch do
   require Mogrify
   alias CNMN.{Util, Image}
 
-  def usage(cmdname) do
+  def usage(cmdname),
+    do: """
+      #{cmdname} searches for a Discord image or URL in the command message and
+      the message it replies to (if any), then content-aware scales it down by
+      50%.
     """
-    #{cmdname} searches for a Discord image or URL in the command message and
-    the message it replies to (if any), then content-aware scales it down by
-    50%.
-    """
-  end
 
   def handle(_args, msg) do
     id = to_string(msg.id)

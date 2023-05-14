@@ -7,8 +7,8 @@ defmodule CNMN.Command.Help do
 
   def usage(cmdname),
     do: """
-    "#{cmdname}" on its own lists all commands.
-    "#{cmdname} <command>" gives usage for a specific command.
+      "#{cmdname}" on its own lists all commands.
+      "#{cmdname} <command>" gives usage for a specific command.
     """
 
   # name of a command including the CommandRouter prefix
