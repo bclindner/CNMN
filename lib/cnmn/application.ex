@@ -3,7 +3,6 @@ defmodule CNMN.Application do
   Base application for starting CNMN.
   """
   use Application
-  alias Nostrum.Api
 
   def start(_type, _args) do
     children = [
