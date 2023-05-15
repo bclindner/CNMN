@@ -4,7 +4,7 @@ defmodule CNMN.Image do
   """
 
   alias Mogrify, as: Mog
-  alias CNMN.Util
+  alias CNMN.{HTTPClient, Util}
   alias CNMN.Util.Reply
 
   defp pctstring(percentage) do
@@ -49,8 +49,8 @@ defmodule CNMN.Image do
           end
 
         url ->
-          Util.download!(url, infile)
-          |> Mogrify.open()
+          HTTPClient.download!(url, infile)
+          Mogrify.open(infile)
           |> transformer.()
           |> save(outfile)
           |> Reply.file!(msg)

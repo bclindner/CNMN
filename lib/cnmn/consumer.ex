@@ -5,9 +5,10 @@ defmodule CNMN.Consumer do
   """
   use Nostrum.Consumer
   alias Nostrum.Api
+  require CNMN.Application
 
   def handle_event({:READY, _evt, _ws_state}) do
-    version = Application.spec(:cnmn, :vsn)
+    version = CNMN.Application.version()
     prefix = CNMN.CommandRouter.prefix()
     Api.update_status(:online, "Hi-Fi Rush (v#{version}, #{prefix}help)")
   end

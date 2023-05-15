@@ -4,6 +4,8 @@ defmodule CNMN.Application do
   """
   use Application
 
+  def version, do: Application.spec(:cnmn, :vsn)
+
   def start(_type, _args) do
     children = [
       # event consumer

@@ -3,28 +3,6 @@ defmodule CNMN.Util do
   alias Nostrum.Struct, as: Discord
   alias Nostrum.Api
 
-  @doc """
-  Save a URL to a tempfile.
-
-  Helpful for certain tasks operating on large files, like video
-  or image manipulation.
-  """
-  @spec download!(String.t(), String.t()) :: String.t()
-  def download!(url, filepath) do
-    Application.ensure_all_started(:inets)
-    url = to_charlist(url)
-
-    {:ok, :saved_to_file} =
-      :httpc.request(
-        :get,
-        {url, []},
-        [ssl: [{:verify, :verify_peer}, {:cacerts, :public_key.cacerts_get()}]],
-        stream: to_charlist(filepath)
-      )
-
-    filepath
-  end
-
   # regex for discord images (specifically ones we can process)
   defp discord_img_regex(content) do
     case Regex.scan(
