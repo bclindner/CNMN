@@ -26,12 +26,12 @@ FROM docker.io/debian:bullseye
 # resolve locale issue
 # (see https://stackoverflow.com/q/32407164)
 ENV LANG=C.UTF-8
-# copy from the previous container
-WORKDIR /app
-COPY --from=build /app .
 # install deps
 RUN apt-get update && apt-get install -y ffmpeg python3 python3-pip imagemagick
 RUN pip install yt-dlp==2023.3.4
+# copy from the previous container
+WORKDIR /app
+COPY --from=build /app .
 
 # use /app/bin/cnmn as entrypoint (s.t. we can attach with `[podman/docker] exec [...] remote`)
 ENTRYPOINT ["/app/bin/cnmn"]
