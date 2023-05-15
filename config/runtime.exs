@@ -4,6 +4,7 @@ config :nostrum,
   token: System.fetch_env!("BOT_TOKEN")
 
 config :cnmn,
+  prefix: System.get_env("BOT_PREFIX", "c-"),
   admins: [82_984_152_671_985_664],
   autocrunch_channels: [
     1_107_403_690_630_987_846,
