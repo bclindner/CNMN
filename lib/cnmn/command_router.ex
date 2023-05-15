@@ -8,13 +8,13 @@ defmodule CNMN.CommandRouter do
   @doc """
   Prefix the CommandRouter is checking each message for.
   """
-  def prefix, do: Application.get_env(:cnmn, :prefix)
+  def prefix, do: Application.fetch_env!(:cnmn, :prefix)
 
   @doc """
   Commands the CommandRouter is allowing to handle its commands.
   This is pulled from the Application configuration.
   """
-  def commands, do: Application.get_env(:cnmn, :commands)
+  def commands, do: Application.fetch_env!(:cnmn, :commands)
 
   defp is_command(msg), do: String.starts_with?(msg.content, prefix())
 

@@ -8,7 +8,8 @@ defmodule CNMN.Consumer do
 
   def handle_event({:READY, _evt, _ws_state}) do
     version = Application.spec(:cnmn, :vsn)
-    Api.update_status(:online, "Hi-Fi Rush (v#{version})")
+    prefix = CNMN.CommandRouter.prefix()
+    Api.update_status(:online, "Hi-Fi Rush (v#{version}, #{prefix}help)")
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do

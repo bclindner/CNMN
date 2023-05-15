@@ -15,8 +15,6 @@ defmodule CNMN.Application do
       CNMN.Command.Music.Consumer
     ]
 
-    result = Supervisor.start_link(children, strategy: :one_for_one)
-    Api.update_status(:online, "Hi-Fi Rush")
-    result
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end
