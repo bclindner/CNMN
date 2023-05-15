@@ -1,5 +1,5 @@
 # build step
-FROM docker.io/elixir:1.14-alpine AS build
+FROM docker.io/elixir:1.14 AS build
 
 ENV MIX_ENV=prod
 WORKDIR /build
@@ -21,12 +21,16 @@ WORKDIR /app
 RUN rm -rf /build
 
 # set up runtime environment
-FROM docker.io/alpine:3.18
+FROM docker.io/debian:bullseye
+
+# resolve locale issue
+# (see https://stackoverflow.com/q/32407164)
+ENV LANG=C.UTF-8
 # copy from the previous container
 WORKDIR /app
 COPY --from=build /app .
 # install deps
-RUN apk add ffmpeg python3 py3-pip imagemagick
+RUN apt-get update && apt-get install -y ffmpeg python3 python3-pip imagemagick
 RUN pip install yt-dlp==2023.3.4
 
 # use /app/bin/cnmn as entrypoint (s.t. we can attach with `[podman/docker] exec [...] remote`)
