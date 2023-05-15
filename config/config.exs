@@ -1,7 +1,7 @@
 import Config
 
 config :cnmn,
-  prefix: "c-",
+  prefix: ",",
   commands: [
     CNMN.Command.Help,
     CNMN.Command.Ping,

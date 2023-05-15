@@ -30,6 +30,8 @@ defmodule CNMN.Image do
   This process finds a URL in the mssage or its replies, then saves it to a
   temporary file, transforms it with the ImageMagick wrapper Mogrify, then
   returns it as a reply.
+
+  If the function cannot find a URL, it replies to the user.
   """
   def transform(msg, transformer, opts \\ []) do
     unless msg.author.bot do

@@ -2,24 +2,44 @@ defmodule CNMN.HTTPClient do
   @moduledoc """
   Functions for interfacing with HTTP via the Erlang httpc library.
   """
+  require Logger
 
-  defp headers, do: [
-    'User-Agent': 'CNMN/#{CNMN.Application.version()}'
+  @doc "Default headers."
+  def headers, do: [
+    {'User-Agent', 'CNMN/#{CNMN.Application.version()}'}
   ]
 
-  defp parse_options(opts), do: [
-    stream: Keyword.get(opts, :stream_to, nil)
-  ]
+  @spec parse_options(request_options, headers, keyword()) :: {keyword(), keyword()}
+  @doc """
+  Convert the request options format into a format httpc respects.
+  """
+  def parse_options(opts, headers \\ headers(), results \\ [])
+  def parse_options([{key, value} | opts], headers, results) do
+    results = case key do
+      :stream_to -> Keyword.put(results, :stream, to_charlist(value))
+      _ -> results
+    end
+    headers = case key do
+      :headers -> Keyword.merge(headers, value)
+      _ -> headers
+    end
+    parse_options(opts, headers, results)
+  end
+  def parse_options([], headers, results), do: {headers, results}
+
+  @type method :: :get | :post | :put | :delete
+  @type headers :: [{charlist(), charlist()}]
+  @type request_options :: [{:headers, headers} | {:stream_to, binary()}]
+  @type response :: {:ok | :error, term}
 
   @doc """
   Perform an an HTTPS request with some default values.
   """
+  @spec request(method, binary(), request_options) :: response
   def request(method, url, opts \\ []) do
     # combine the default headers with the ones provided (if any)
-    headers = headers()
     url = to_charlist(url)
-      |> Keyword.merge(Keyword.get(opts, :headers, []))
-    options = parse_options(opts)
+    {headers, options} = parse_options(opts)
     :httpc.request(
       method,
       {url, headers},
@@ -31,12 +51,15 @@ defmodule CNMN.HTTPClient do
   @doc """
   Download a file from an HTTP server to the provided filepath.
   """
-  @spec download(charlist(), charlist()) :: {:ok, :saved_to_file} | {:error, term()}
+  @spec download(binary(), binary()) :: response
   def download(url, filepath) do
     request(:get, url, stream_to: filepath)
   end
 
-  @spec download(binary(), binary()) :: :ok
+  @doc """
+  See download/2, but fails if an error is encountered.
+  """
+  @spec download!(binary(), binary()) :: :ok
   def download!(url, filepath) do
     case download(url, filepath) do
       {:ok, :saved_to_file} ->
