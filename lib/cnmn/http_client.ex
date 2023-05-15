@@ -28,6 +28,7 @@ defmodule CNMN.HTTPClient do
   def parse_options([], headers, results), do: {headers, results}
 
   @type method :: :get | :post | :put | :delete
+  @type url :: charlist() | binary()
   @type headers :: [{charlist(), charlist()}]
   @type request_options :: [{:headers, headers} | {:stream_to, binary()}]
   @type response :: {:ok | :error, term}
@@ -35,17 +36,60 @@ defmodule CNMN.HTTPClient do
   @doc """
   Perform an an HTTPS request with some default values.
   """
-  @spec request(method, binary(), request_options) :: response
-  def request(method, url, opts \\ []) do
+  @spec request(method, url, request_options) :: response
+  def request(method, url, opts) do
     # combine the default headers with the ones provided (if any)
     url = to_charlist(url)
     {headers, options} = parse_options(opts)
     :httpc.request(
       method,
       {url, headers},
-      [ssl: [{:verify, :verify_peer}, {:cacerts, :public_key.cacerts_get()}]],
+      [ssl: [
+        verify: :verify_peer,
+        cacerts: :public_key.cacerts_get(),
+        # permit wildcards in SAN extensions
+        # (https://github.com/benoitc/hackney/issues/624#issuecomment-631340823)
+        customize_hostname_check: [
+          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+        ]
+      ]],
       options
     )
+  end
+
+  @doc """
+  See `request/3`, but fails if an error is encountered, and
+  the response is sent directly.
+  """
+  @spec request!(method, url, request_options) :: term
+  def request!(method, url, opts \\ []) do
+    case request(method, url, opts) do
+      {:ok, response} -> response
+      {:error, error} -> raise inspect(error) # TODO fix... gross
+    end
+  end
+
+  @doc """
+  Make a request and deserialize its JSON response.
+  """
+  @spec json(method, url, request_options) :: {:ok, map()} | {:error, binary()}
+  def json(method, url, opts \\ []) do
+    case request(method, url, opts) do
+      {:ok, {_status, _headers, body}} ->
+        Jason.decode(body)
+      error -> error
+    end
+  end
+
+  @doc """
+  See `json/3`, but fails if an error is encountered.
+  """
+  @spec json!(method, url, request_options) :: map()
+  def json!(method, url, opts \\ []) do
+    case json(method, url, opts) do
+      {:ok, data} -> data
+      {:error, data} -> raise data
+    end
   end
 
   @doc """
