@@ -18,9 +18,11 @@ defmodule CNMN.Image do
 
   def crunch(infile, outpath, factor \\ 0.5) do
     outfile = Path.join(outpath, "crunch.png")
+
     Mog.open(infile)
     |> Mog.custom("liquid-rescale", factorstring(factor))
     |> Mog.save(path: outfile)
+
     outfile
   end
 
@@ -58,6 +60,7 @@ defmodule CNMN.Image do
           )
 
           HTTPClient.download!(url, infile)
+
           transformer.(infile, temppath)
           |> Reply.file!(msg)
       end
