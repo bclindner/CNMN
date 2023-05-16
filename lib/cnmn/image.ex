@@ -6,6 +6,7 @@ defmodule CNMN.Image do
   alias Mogrify, as: Mog
   alias CNMN.{HTTPClient, Util}
   alias CNMN.Util.Reply
+  require Logger
 
   defp pctstring(percentage) do
     to_string(percentage) <> "%"
@@ -49,8 +50,13 @@ defmodule CNMN.Image do
               msg
             )
           end
-
         url ->
+          Logger.info("Running image transformer",
+            url: url,
+            msgid: msg.id,
+            dir: temppath,
+            transformer: inspect(transformer)
+          )
           HTTPClient.download!(url, infile)
           Mogrify.open(infile)
           |> transformer.()

@@ -5,6 +5,8 @@ defmodule CNMN.CommandRouter do
   message is received.
   """
 
+  require Logger
+
   @doc """
   Prefix the CommandRouter is checking each message for.
   """
@@ -40,6 +42,11 @@ defmodule CNMN.CommandRouter do
 
   def handle_message(msg) do
     if is_command(msg) do
+      Logger.info("Processing command: #{msg.content}",
+        msgid: msg.id,
+        userid: msg.author.id,
+        command: msg.content
+      )
       handle_command(msg, commands())
     end
   end

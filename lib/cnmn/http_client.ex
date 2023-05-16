@@ -2,7 +2,6 @@ defmodule CNMN.HTTPClient do
   @moduledoc """
   Functions for interfacing with HTTP via the Erlang httpc library.
   """
-  require Logger
 
   @doc "Default headers."
   def headers, do: [
