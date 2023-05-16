@@ -13,6 +13,6 @@ defmodule CNMN.Command.Crunch do
     """
 
   def handle(_args, msg) do
-    Image.transform(msg, &Image.crunch/1)
+    Image.transform(msg, &Image.crunch/2)
   end
 end

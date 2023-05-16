@@ -9,7 +9,7 @@ defmodule CNMN.Autocrunch do
   @spec handle_message(Nostrum.Struct.Message.t()) :: term
   def handle_message(msg) do
     if Enum.member?(enabled_channels(), msg.channel_id) do
-      Image.transform(msg, &Image.crunch/1, quiet: true)
+      Image.transform(msg, &Image.crunch/2, quiet: true)
     end
   end
 end

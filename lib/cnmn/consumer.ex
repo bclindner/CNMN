@@ -12,7 +12,7 @@ defmodule CNMN.Consumer do
     # set status and log that we are ready
     version = CNMN.Application.version()
     prefix = CNMN.CommandRouter.prefix()
-    Api.update_status(:online, "Hi-Fi Rush (v#{version}, #{prefix}help)")
+    Api.update_status(:online, "Hi-Fi Rush (#{prefix}help, v#{version})")
     username = evt.user.username <> "#" <> evt.user.discriminator
 
     Logger.info("CNMN v#{version} connected as #{username} (prefix \"#{prefix}\")",

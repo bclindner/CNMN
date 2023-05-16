@@ -16,13 +16,12 @@ defmodule CNMN.Image do
     "#{pct1}%x#{pct2}%"
   end
 
-  def crunch(image, factor \\ 0.5) do
-    image |> Mog.custom("liquid-rescale", factorstring(factor))
-  end
-
-  def save(image, path) do
-    Mog.save(image, path: path)
-    path
+  def crunch(infile, outpath, factor \\ 0.5) do
+    outfile = Path.join(outpath, "crunch.png")
+    Mog.open(infile)
+    |> Mog.custom("liquid-rescale", factorstring(factor))
+    |> Mog.save(path: outfile)
+    outfile
   end
 
   @doc """
@@ -40,7 +39,6 @@ defmodule CNMN.Image do
       Temp.track!()
       temppath = Temp.mkdir!(id)
       infile = Path.join(temppath, "input")
-      outfile = Path.join(temppath, "output.png")
 
       case Util.find_image(msg) do
         nil ->
@@ -60,10 +58,7 @@ defmodule CNMN.Image do
           )
 
           HTTPClient.download!(url, infile)
-
-          Mogrify.open(infile)
-          |> transformer.()
-          |> save(outfile)
+          transformer.(infile, temppath)
           |> Reply.file!(msg)
       end
     end
