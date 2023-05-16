@@ -4,4 +4,6 @@ deps/
 .git/
 .gitignore
 .formatter.exs
+.env
+.scripts
 README.md
