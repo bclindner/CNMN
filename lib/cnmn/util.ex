@@ -14,7 +14,6 @@ defmodule CNMN.Util do
     end
   end
 
-
   @spec find_image(Discord.Message.t(), Integer.t()) :: String.t() | nil
   def find_image(msg, loops \\ 1) do
     cond do

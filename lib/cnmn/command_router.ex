@@ -42,7 +42,7 @@ defmodule CNMN.CommandRouter do
 
   def handle_message(msg) do
     if is_command(msg) do
-      Logger.info("Processing command: #{msg.content}",
+      Logger.info("Processing command: \"#{msg.content}\"",
         msgid: msg.id,
         userid: msg.author.id,
         command: msg.content
