@@ -14,18 +14,9 @@ defmodule CNMN.Util do
     end
   end
 
-  @doc """
-  Find an image URL from a `Nostrum.Struct.Message`.
-  This first searches for the first attachment, then the first
-  """
-  @spec find_image(Discord.Message.t()) :: String.t() | nil
-  def find_image(msg), do: find_image(msg, 1)
 
-  @doc """
-  Similar to `find_image/1`, but allows for controlling the depth of the reply searches.
-  """
   @spec find_image(Discord.Message.t(), Integer.t()) :: String.t() | nil
-  def find_image(msg, loops) do
+  def find_image(msg, loops \\ 1) do
     cond do
       # first, check if there is an attachment
       length(msg.attachments) > 0 ->
