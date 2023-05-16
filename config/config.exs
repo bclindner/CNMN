@@ -20,14 +20,16 @@ config :nostrum,
   youtubedl: "yt-dlp"
 
 config :logger, :console,
- format: "$date $time [$level] $message $metadata\n",
- metadata: [
-   :msgid,
-   :userid
- ]
+  format: "$date $time [$level] $message $metadata\n",
+  metadata: [
+    :msgid,
+    :userid
+  ]
 
 case config_env() do
   :prod ->
     import_config "prod.exs"
-  _ -> :noop
+
+  _ ->
+    :noop
 end

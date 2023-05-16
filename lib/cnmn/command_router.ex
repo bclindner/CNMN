@@ -47,6 +47,7 @@ defmodule CNMN.CommandRouter do
         userid: msg.author.id,
         command: msg.content
       )
+
       handle_command(msg, commands())
     end
   end

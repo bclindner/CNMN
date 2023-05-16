@@ -4,26 +4,33 @@ defmodule CNMN.HTTPClient do
   """
 
   @doc "Default headers."
-  def headers, do: [
-    {'User-Agent', 'CNMN/#{CNMN.Application.version()}'}
-  ]
+  def headers,
+    do: [
+      {'User-Agent', 'CNMN/#{CNMN.Application.version()}'}
+    ]
 
   @spec parse_options(request_options, headers, keyword()) :: {keyword(), keyword()}
   @doc """
   Convert the request options format into a format httpc respects.
   """
   def parse_options(opts, headers \\ headers(), results \\ [])
+
   def parse_options([{key, value} | opts], headers, results) do
-    results = case key do
-      :stream_to -> Keyword.put(results, :stream, to_charlist(value))
-      _ -> results
-    end
-    headers = case key do
-      :headers -> Keyword.merge(headers, value)
-      _ -> headers
-    end
+    results =
+      case key do
+        :stream_to -> Keyword.put(results, :stream, to_charlist(value))
+        _ -> results
+      end
+
+    headers =
+      case key do
+        :headers -> Keyword.merge(headers, value)
+        _ -> headers
+      end
+
     parse_options(opts, headers, results)
   end
+
   def parse_options([], headers, results), do: {headers, results}
 
   @type method :: :get | :post | :put | :delete
@@ -40,18 +47,21 @@ defmodule CNMN.HTTPClient do
     # combine the default headers with the ones provided (if any)
     url = to_charlist(url)
     {headers, options} = parse_options(opts)
+
     :httpc.request(
       method,
       {url, headers},
-      [ssl: [
-        verify: :verify_peer,
-        cacerts: :public_key.cacerts_get(),
-        # permit wildcards in SAN extensions
-        # (https://github.com/benoitc/hackney/issues/624#issuecomment-631340823)
-        customize_hostname_check: [
-          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      [
+        ssl: [
+          verify: :verify_peer,
+          cacerts: :public_key.cacerts_get(),
+          # permit wildcards in SAN extensions
+          # (https://github.com/benoitc/hackney/issues/624#issuecomment-631340823)
+          customize_hostname_check: [
+            match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+          ]
         ]
-      ]],
+      ],
       options
     )
   end
@@ -64,7 +74,8 @@ defmodule CNMN.HTTPClient do
   def request!(method, url, opts \\ []) do
     case request(method, url, opts) do
       {:ok, response} -> response
-      {:error, error} -> raise inspect(error) # TODO fix... gross
+      # TODO fix... gross
+      {:error, error} -> raise inspect(error)
     end
   end
 
@@ -76,7 +87,9 @@ defmodule CNMN.HTTPClient do
     case request(method, url, opts) do
       {:ok, {_status, _headers, body}} ->
         Jason.decode(body)
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -107,6 +120,7 @@ defmodule CNMN.HTTPClient do
     case download(url, filepath) do
       {:ok, :saved_to_file} ->
         :ok
+
       {:error, errdata} ->
         raise "Failed to download file from URL \"#{url}\" to \"#{filepath}\": #{errdata}"
     end
