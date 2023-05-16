@@ -8,15 +8,15 @@ defmodule CNMN.Image do
   alias CNMN.Util.Reply
   require Logger
 
-  defp pctstring(percentage) do
-    to_string(percentage) <> "%"
+  def factorstring(pct), do: factorstring(pct, pct)
+
+  def factorstring(pct1, pct2) do
+    pct1 = round(pct1 * 100)
+    pct2 = round(pct2 * 100)
+    "#{pct1}%x#{pct2}%"
   end
 
-  def factorstring(percentage) do
-    pctstring(percentage) <> "x" <> pctstring(percentage)
-  end
-
-  def crunch(image, factor \\ 50) do
+  def crunch(image, factor \\ 0.5) do
     image |> Mog.custom("liquid-rescale", factorstring(factor))
   end
 
@@ -50,6 +50,7 @@ defmodule CNMN.Image do
               msg
             )
           end
+
         url ->
           Logger.info("Running image transformer",
             url: url,
@@ -57,7 +58,9 @@ defmodule CNMN.Image do
             dir: temppath,
             transformer: inspect(transformer)
           )
+
           HTTPClient.download!(url, infile)
+
           Mogrify.open(infile)
           |> transformer.()
           |> save(outfile)
