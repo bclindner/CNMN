@@ -168,4 +168,8 @@ defmodule CNMN.Command.Music do
       Reply.text!("Stopped.", msg)
     end
   end
+
+  def handle([], msg) do
+    :noop
+  end
 end
