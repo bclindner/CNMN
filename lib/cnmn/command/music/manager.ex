@@ -3,15 +3,15 @@ defmodule CNMN.Command.Music.Manager do
   alias CNMN.Command.Music.{Track, GuildState}
   alias Nostrum.Voice
 
-  def start_link(data) when is_map(data) do
-    GenServer.start_link(__MODULE__, data, name: __MODULE__)
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
   @doc """
   Run the music player for a guild.
 
   This should be run on ready or any time the bot stops transmitting, to allow
-  the system to pull from the queue.
+  the system to pull from the queue. This is primarily used by the Consumer.
   """
   def run_player(guild_id) do
     state = GenServer.call(__MODULE__, {:get, guild_id})
