@@ -12,6 +12,8 @@ defmodule CNMN.Consumer do
 
   def status_string do
     extra = if Enum.member?(handlers(), CNMN.Handler.Router) do
+      prefix = CNMN.Handler.Router.prefix()
+      "(#{prefix}help)"
     end
     "Hi-Fi Rush #{extra}"
   end
