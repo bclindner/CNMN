@@ -1,11 +1,25 @@
-defmodule CNMN.Command.Music.Manager do
+defmodule CNMN.Music.Manager do
   use GenServer
-  alias CNMN.Command.Music.{Track, GuildState}
+  alias CNMN.Music.{Track, GuildState}
   alias Nostrum.Voice
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
+
+  # if there is a speaking update and the bot is no longer speaking, then we
+  # can re-run the player
+  def handle_event({:VOICE_SPEAKING_UPDATE, evt, _ws_state}) do
+    if !evt.speaking && !evt.timed_out do
+      run_player(evt.guild_id)
+    end
+  end
+
+  def handle_event({:VOICE_READY, evt, _ws_state}) do
+    run_player(evt.guild_id)
+  end
+
+  def handle_event(_), do: :noop
 
   @doc """
   Run the music player for a guild.

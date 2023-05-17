@@ -8,6 +8,6 @@ defmodule CNMN.Command.Ping do
   def usage(cmdname), do: "#{cmdname} replies with a simple \"pong\" response."
 
   def handle(_args, msg) do
-    Reply.text!(CNMN.CommandRouter.prefix() <> "pong", msg)
+    Reply.text!(CNMN.Handler.Router.prefix() <> "pong", msg)
   end
 end

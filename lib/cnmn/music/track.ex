@@ -1,4 +1,4 @@
-defmodule CNMN.Command.Music.Track do
+defmodule CNMN.Music.Track do
   defstruct(
     title: "Unknown",
     uploader: "Unknown",
@@ -27,7 +27,7 @@ defmodule CNMN.Command.Music.Track do
       0 ->
         rawdata = Jason.decode!(output)
 
-        %CNMN.Command.Music.Track{
+        %CNMN.Music.Track{
           title: rawdata |> Map.get("title", "Unknown"),
           uploader: rawdata |> Map.get("uploader", "Unknown"),
           uploader_url: rawdata |> Map.get("uploader_url"),

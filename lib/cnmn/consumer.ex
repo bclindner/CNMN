@@ -5,41 +5,42 @@ defmodule CNMN.Consumer do
   """
   use Nostrum.Consumer
   alias Nostrum.Api
-  alias CNMN.Command.Music.{Manager}
   require CNMN.Application
   require Logger
+
+  def handlers, do: Application.fetch_env!(:cnmn, :handlers)
+
+  def status_string do
+    extra = if Enum.member?(handlers(), CNMN.Handler.Router) do
+    end
+    "Hi-Fi Rush #{extra}"
+  end
 
   def handle_event({:READY, evt, _ws_state}) do
     # set status and log that we are ready
     version = CNMN.Application.version()
-    prefix = CNMN.CommandRouter.prefix()
-    Api.update_status(:online, "Hi-Fi Rush (#{prefix}help, v#{version})")
+    Api.update_status(:online, status_string())
     username = evt.user.username <> "#" <> evt.user.discriminator
-
-    Logger.info("CNMN v#{version} connected as #{username} (prefix \"#{prefix}\")",
+    Logger.info("CNMN v#{version} connected as #{username}",
       version: version,
       username: username
     )
   end
 
-  # if there is a speaking update and the bot is no longer speaking, then we
-  # can re-run the player
-  def handle_event({:VOICE_SPEAKING_UPDATE, evt, _ws_state}) do
-    if !evt.speaking && !evt.timed_out do
-      Manager.run_player(evt.guild_id)
-    end
+  def handle_event(evt) do
+    run_handlers(evt)
   end
 
-  def handle_event({:VOICE_READY, evt, _ws_state}) do
-    Manager.run_player(evt.guild_id)
+  @doc """
+  Run all handlers associated with the Consumer.
+  """
+  def run_handlers(evt, handlers \\ handlers())
+  def run_handlers(evt, [handler| handlers]) do
+    handler.handle_event(evt)
+    run_handlers(evt, handlers)
   end
-
-  def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
-    CNMN.CommandRouter.handle_message(msg)
-    CNMN.Autocrunch.handle_message(msg)
-  end
-
-  def handle_event(_other) do
+  def run_handlers(_evt, []) do
     :noop
   end
+
 end

@@ -1,13 +1,21 @@
 import Config
 
 config :cnmn,
-  prefix: ",",
+  handlers: [
+    CNMN.Handler.Router,
+    CNMN.Handler.Autotransform,
+    CNMN.Handler.Music
+  ]
+
+config :cnmn, :router,
   commands: [
     CNMN.Command.Help,
     CNMN.Command.Ping,
     CNMN.Command.Music,
     CNMN.Command.Crunch
   ]
+
+
 
 config :nostrum,
   gateway_intents: [

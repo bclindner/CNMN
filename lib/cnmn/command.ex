@@ -1,6 +1,6 @@
 defmodule CNMN.Command do
   @moduledoc """
-  Command declaration, usable within CNMN.CommandRouter.
+  Command declaration, usable within CNMN.Handler.Router.
   """
 
   @doc """

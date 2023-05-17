@@ -1,6 +1,6 @@
-defmodule CNMN.Command.Music.GuildState do
+defmodule CNMN.Music.GuildState do
   @moduledoc """
-  State struct for the CNMN.Command.Music.Manager.
+  State struct for the CNMN.Music.Manager.
   """
   defstruct(
     playing: true,

@@ -3,7 +3,7 @@ defmodule CNMN.Command.Help do
   @command_desc "List commands and show help information."
 
   use CNMN.Command
-  alias CNMN.CommandRouter, as: Router
+  alias CNMN.Handler.Router, as: Router
   alias CNMN.Util.Reply
 
   def usage(cmdname),
@@ -12,7 +12,7 @@ defmodule CNMN.Command.Help do
       "#{cmdname} <command>" gives usage for a specific command.
     """
 
-  # name of a command including the CommandRouter prefix
+  # name of a command including the Router prefix
   defp cmdname(cmd), do: Router.prefix() <> cmd.name()
 
   # a map of registered commands to names

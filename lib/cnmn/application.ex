@@ -11,7 +11,7 @@ defmodule CNMN.Application do
       # event consumer
       CNMN.Consumer,
       # music state manager
-      {CNMN.Command.Music.Manager, %{}}
+      {CNMN.Music.Manager, %{}}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)

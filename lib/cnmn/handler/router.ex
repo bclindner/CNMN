@@ -1,22 +1,25 @@
-defmodule CNMN.CommandRouter do
+defmodule CNMN.Handler.Router do
   @moduledoc """
   Router for CNMN's plain-text command messages. Uses CNMN.Command modules
   specified in the application config to handle percieved commands when a
   message is received.
   """
+  use CNMN.Handler
 
   require Logger
 
-  @doc """
-  Prefix the CommandRouter is checking each message for.
-  """
-  def prefix, do: Application.fetch_env!(:cnmn, :prefix)
+  def config, do: Application.fetch_env!(:cnmn, :router)
 
   @doc """
-  Commands the CommandRouter is allowing to handle its commands.
+  Prefix the Router is checking each message for.
+  """
+  def prefix, do: config() |> Keyword.fetch!(:prefix)
+
+  @doc """
+  Commands the Router is allowing to handle its commands.
   This is pulled from the Application configuration.
   """
-  def commands, do: Application.fetch_env!(:cnmn, :commands)
+  def commands, do: config() |> Keyword.fetch!(:commands)
 
   defp is_command(msg), do: String.starts_with?(msg.content, prefix())
 
@@ -40,7 +43,7 @@ defmodule CNMN.CommandRouter do
     :ok
   end
 
-  def handle_message(msg) do
+  def handle_event(:MESSAGE_CREATE, msg) do
     if is_command(msg) do
       Logger.info("Processing command: \"#{msg.content}\"",
         msgid: msg.id,
@@ -50,5 +53,9 @@ defmodule CNMN.CommandRouter do
 
       handle_command(msg, commands())
     end
+  end
+
+  def handle_event(:READY, _evt) do
+    Logger.info("Router initialized (prefix \"#{prefix()}\")")
   end
 end

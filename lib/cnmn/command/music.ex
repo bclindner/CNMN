@@ -6,8 +6,8 @@ defmodule CNMN.Command.Music do
   alias CNMN.Util.Reply
   alias Nostrum.Struct.Embed
   alias Nostrum.Voice
-  alias Nostrum.Cache.{GuildCache}
-  alias CNMN.Command.Music.Manager
+  alias Nostrum.Cache.GuildCache
+  alias CNMN.Music.Manager
 
   def usage(cmdname),
     do: """
@@ -169,7 +169,4 @@ defmodule CNMN.Command.Music do
     end
   end
 
-  def handle([], msg) do
-    :noop
-  end
 end
