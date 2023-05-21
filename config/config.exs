@@ -15,8 +15,6 @@ config :cnmn, :router,
     CNMN.Command.Crunch
   ]
 
-
-
 config :nostrum,
   gateway_intents: [
     :guilds,

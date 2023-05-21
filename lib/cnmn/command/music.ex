@@ -166,25 +166,30 @@ defmodule CNMN.Command.Music do
       # make it through.
       # while it's probably harmless, some logic is done here to avoid
       # potentially malformatted integers from being used
-      result = case Integer.parse(idx) do
-        # if we failed, we just return nil
-        # (we only aren't using :error because i'd rather not do another check
-        # on the Manager.pop call below)
-        :error -> nil
-        # if the index is 0, let's assume the user is trying to skip the
-        # current track, and return nothing from this function
-        {0, ""} ->
-          handle(["skip"], msg)
-          :ok
-        # if we're here, then we got a valid integer, let's send it to the
-        # Manager
-        {idx, ""} ->
-          # subtracting 1 since the queue we expect the users to pick from is
-          # 1-indexed
-          Manager.pop(msg.guild_id, idx - 1)
-      end
+      result =
+        case Integer.parse(idx) do
+          # if we failed, we just return nil
+          # (we only aren't using :error because i'd rather not do another check
+          # on the Manager.pop call below)
+          :error ->
+            nil
+
+          # if the index is 0, let's assume the user is trying to skip the
+          # current track, and return nothing from this function
+          {0, ""} ->
+            handle(["skip"], msg)
+            :ok
+
+          # if we're here, then we got a valid integer, let's send it to the
+          # Manager
+          {idx, ""} ->
+            # subtracting 1 since the queue we expect the users to pick from is
+            # 1-indexed
+            Manager.pop(msg.guild_id, idx - 1)
+        end
+
       case result do
-        :nil -> Reply.text!("Invalid track number", msg)
+        nil -> Reply.text!("Invalid track number", msg)
         :ok -> :noop
         track -> Reply.text!("Skipped track #{idx} (#{track.title})", msg)
       end
@@ -219,5 +224,4 @@ defmodule CNMN.Command.Music do
       Reply.text!("Stopped.", msg)
     end
   end
-
 end

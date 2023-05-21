@@ -155,13 +155,17 @@ defmodule CNMN.Music.Manager do
   @impl true
   def handle_call({:skip, guild_id}, _from, states) do
     state = get_state(states, guild_id)
+
     case state.queue do
       [] ->
         {:reply, nil, states}
+
       [track | queue] ->
-        state = state
+        state =
+          state
           |> Map.put(:current, track)
           |> Map.put(:queue, queue)
+
         {:reply, track, Map.put(states, guild_id, state)}
     end
   end

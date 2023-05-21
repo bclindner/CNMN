@@ -17,6 +17,7 @@ defmodule CNMN.Handler do
       def handle_event({name, evt, _ws_state}) do
         handle_event(name, evt)
       end
+
       def handle_event(_name, _evt) do
         :noop
       end

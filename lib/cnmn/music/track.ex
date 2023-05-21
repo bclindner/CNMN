@@ -20,6 +20,7 @@ defmodule CNMN.Music.Track do
     unless String.starts_with?(url, "https://") do
       raise "link is invalid"
     end
+
     # now call youtube-dl directly to get what we want
     {output, status} = System.cmd(ytdl_path(), ["-s", "-j", url])
 
