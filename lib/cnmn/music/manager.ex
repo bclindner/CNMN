@@ -1,4 +1,7 @@
 defmodule CNMN.Music.Manager do
+  @moduledoc """
+  GenServer for handling server music queues. Used by commands and `CNMN.Handler.Music`.
+  """
   use GenServer
   alias CNMN.Music.{Track, GuildState}
   alias Nostrum.Voice
@@ -31,7 +34,7 @@ defmodule CNMN.Music.Manager do
     state = GenServer.call(__MODULE__, {:get, guild_id})
 
     if state.playing do
-      data = GenServer.call(__MODULE__, {:pop, guild_id})
+      data = GenServer.call(__MODULE__, {:skip, guild_id})
 
       case data do
         nil -> nil
@@ -88,10 +91,20 @@ defmodule CNMN.Music.Manager do
 
   @doc """
   Skip the currently playing song.
+
+  (This actually just stops playing so that `run_player` can handle it.)
   """
   def skip(guild_id) do
+    track = GenServer.call(__MODULE__, {:peek, guild_id})
     Voice.stop(guild_id)
-    GenServer.call(__MODULE__, {:peek, guild_id})
+    track
+  end
+
+  @doc """
+  Remove a track from the queue.
+  """
+  def pop(guild_id, track_idx) do
+    GenServer.call(__MODULE__, {:pop, guild_id, track_idx})
   end
 
   @impl true
@@ -121,29 +134,11 @@ defmodule CNMN.Music.Manager do
   end
 
   @impl true
-  def handle_call({:pop, guild_id}, _from, states) do
+  def handle_call({:pop, guild_id, idx}, _from, states) do
     state = get_state(states, guild_id)
-
-    case state.queue do
-      [] ->
-        {:reply, nil, states}
-
-      [data] ->
-        state =
-          state
-          |> Map.put(:queue, [])
-          |> Map.put(:current, data)
-
-        {:reply, data, Map.put(states, guild_id, state)}
-
-      [data | queue] ->
-        state =
-          state
-          |> Map.put(:queue, queue)
-          |> Map.put(:current, data)
-
-        {:reply, data, Map.put(states, guild_id, state)}
-    end
+    {track, queue} = List.pop_at(state.queue, idx)
+    state = Map.put(state, :queue, queue)
+    {:reply, track, Map.put(states, guild_id, state)}
   end
 
   @impl true
@@ -153,6 +148,20 @@ defmodule CNMN.Music.Manager do
       |> Map.put(:playing, value)
 
     {:reply, :ok, Map.put(states, guild_id, state)}
+  end
+
+  @impl true
+  def handle_call({:skip, guild_id}, _from, states) do
+    state = get_state(states, guild_id)
+    case state.queue do
+      [] ->
+        {:reply, nil, states}
+      [track | queue] ->
+        state = state
+          |> Map.put(:current, track)
+          |> Map.put(:queue, queue)
+        {:reply, track, Map.put(states, guild_id, state)}
+    end
   end
 
   @impl true
