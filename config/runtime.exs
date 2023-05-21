@@ -1,7 +1,7 @@
 import Config
 
 config :nostrum,
-  token: System.fetch_env!("BOT_TOKEN")
+  token: System.get_env("BOT_TOKEN")
 
 config :cnmn, :router,
   prefix: System.get_env("BOT_PREFIX", "c-")
