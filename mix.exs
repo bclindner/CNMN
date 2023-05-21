@@ -21,7 +21,10 @@ defmodule CNMN.MixProject do
 
   def deps do
     [
-      {:nostrum, "~> 0.7.0-rc2"},
+      {:nostrum, "~> 0.7.0-rc2",
+        # nostrum should not run during tests
+        # (see https://github.com/Kraigie/nostrum/issues/230#issuecomment-789498187)
+        runtime: Mix.env() != :test},
       {:mogrify, "~> 0.9.2"},
       {:temp, "~> 0.4"},
       {:jason, "~> 1.3"}
