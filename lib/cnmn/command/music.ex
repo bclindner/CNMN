@@ -78,30 +78,26 @@ defmodule CNMN.Command.Music do
 
   # with no args, simply print the guild queue
   def handle([], msg) do
-    voice_channel_id = ensure_user_in_voice(msg)
+    state = Manager.get_state(msg.guild_id)
 
-    unless voice_channel_id == nil do
-      state = Manager.get_state(msg.guild_id)
-
-      unless state.current == nil do
-        Reply.embed!(
-          %Embed{
-            fields: [
-              %Embed.Field{
-                name: "Now Playing",
-                value: state.current.title
-              },
-              %Embed.Field{
-                name: "Queue",
-                value: queue_string(state.queue)
-              }
-            ]
-          },
-          msg
-        )
-      else
-        Reply.text!("Not currently playing anything.", msg)
-      end
+    unless state.current == nil do
+      Reply.embed!(
+        %Embed{
+          fields: [
+            %Embed.Field{
+              name: "Now Playing",
+              value: state.current.title
+            },
+            %Embed.Field{
+              name: "Queue",
+              value: queue_string(state.queue)
+            }
+          ]
+        },
+        msg
+      )
+    else
+      Reply.text!("Not currently playing anything.", msg)
     end
   end
 
@@ -134,7 +130,7 @@ defmodule CNMN.Command.Music do
 
   # with the play arg and no url, resume playing
   def handle(["play"], msg) do
-    unless ensure_user_in_same_channel(msg) do
+    if ensure_user_in_same_channel(msg) do
       Manager.play(msg.guild_id)
       Reply.text!("Playing.", msg)
     end
