@@ -159,6 +159,7 @@ defmodule CNMN.Command.Music do
     end
   end
 
+  # with the skip arg and an index, skip a song at a given index (if it exists)
   def handle(["skip", idx], msg) do
     if ensure_user_in_same_channel(msg) do
       # the behavior of `Integer.parse/1` allows weird typos to potentially

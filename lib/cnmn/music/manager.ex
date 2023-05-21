@@ -92,7 +92,9 @@ defmodule CNMN.Music.Manager do
   @doc """
   Skip the currently playing song.
 
-  (This actually just stops playing so that `run_player` can handle it.)
+  This actually just stops playing so that `run_player` can handle queueing up
+  the next track, and sends the details of the next track in case that should
+  be displayed.
   """
   def skip(guild_id) do
     track = GenServer.call(__MODULE__, {:peek, guild_id})
