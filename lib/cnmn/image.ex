@@ -63,6 +63,7 @@ defmodule CNMN.Image do
 
           transformer.(infile, temppath)
           |> Reply.file!(msg)
+
           Logger.info("Transformation successful",
             msgid: msg.id
           )

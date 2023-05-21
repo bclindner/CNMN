@@ -11,10 +11,12 @@ defmodule CNMN.Consumer do
   def handlers, do: Application.fetch_env!(:cnmn, :handlers)
 
   def status_string do
-    extra = if Enum.member?(handlers(), CNMN.Handler.Router) do
-      prefix = CNMN.Handler.Router.prefix()
-      "(#{prefix}help)"
-    end
+    extra =
+      if Enum.member?(handlers(), CNMN.Handler.Router) do
+        prefix = CNMN.Handler.Router.prefix()
+        "(#{prefix}help)"
+      end
+
     "Hi-Fi Rush #{extra}"
   end
 
@@ -23,6 +25,7 @@ defmodule CNMN.Consumer do
     version = CNMN.Application.version()
     Api.update_status(:online, status_string())
     username = evt.user.username <> "#" <> evt.user.discriminator
+
     Logger.info("CNMN v#{version} connected as #{username}",
       version: version,
       username: username
@@ -37,12 +40,13 @@ defmodule CNMN.Consumer do
   Run all handlers associated with the Consumer.
   """
   def run_handlers(evt, handlers \\ handlers())
-  def run_handlers(evt, [handler| handlers]) do
+
+  def run_handlers(evt, [handler | handlers]) do
     handler.handle_event(evt)
     run_handlers(evt, handlers)
   end
+
   def run_handlers(_evt, []) do
     :noop
   end
-
 end

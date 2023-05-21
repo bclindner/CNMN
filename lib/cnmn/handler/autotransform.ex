@@ -10,7 +10,9 @@ defmodule CNMN.Handler.Autotransform do
 
   def handle_event(:MESSAGE_CREATE, msg) do
     case Map.get(channels(), msg.channel_id) do
-      nil -> :noop
+      nil ->
+        :noop
+
       value ->
         Image.transform(msg, value, quiet: true)
     end
