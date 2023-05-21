@@ -61,18 +61,41 @@ defmodule CNMN.Command.Music do
     end
   end
 
-  # player queue string builder
-  defp queue_string(tracks, strings \\ [], count \\ 1)
+  @doc ~S"""
+  Parse a list of CNMN.Music.Track structs into a list.
 
-  defp queue_string([track | queue], strings, count) do
-    queue_string(queue, strings ++ ["**#{count}.** #{track.title}"], count + 1)
+  ## Examples
+
+      iex> CNMN.Command.Music.queue_string([%CNMN.Music.Track{title: "Test 1"}])
+      "**1.** Test 1"
+
+      iex> CNMN.Command.Music.queue_string([
+      ...>  %CNMN.Music.Track{title: "Test 1"},
+      ...>  %CNMN.Music.Track{title: "Test 2"}])
+      "**1.** Test 1\n**2.** Test 2"
+
+  Setting `max` will limit the max results.
+
+      iex> CNMN.Command.Music.queue_string([
+      ...>  %CNMN.Music.Track{title: "Test 1"},
+      ...>  %CNMN.Music.Track{title: "Test 2"},
+      ...>  %CNMN.Music.Track{title: "Test 3"},
+      ...>  %CNMN.Music.Track{title: "Test 4"},
+      ...>  %CNMN.Music.Track{title: "Test 5"}], [], 4)
+      "**1.** Test 1\n**2.** Test 2\n**3.** Test 3\n**4.** Test 4"
+
+  """
+  def queue_string(tracks, strings \\ [], max \\ 10, count \\ 1)
+
+  def queue_string([track | queue], strings, max, count) when count <= max do
+    queue_string(queue, strings ++ ["**#{count}.** #{track.title}"], max, count + 1)
   end
 
-  defp queue_string([], [], _count) do
+  def queue_string([], [], _max, _count) do
     "No items in queue"
   end
 
-  defp queue_string([], strings, _count) do
+  def queue_string(_tracks, strings, _max, _count) do
     Enum.join(strings, "\n")
   end
 
@@ -92,7 +115,7 @@ defmodule CNMN.Command.Music do
                 value: state.current.title
               },
               %Embed.Field{
-                name: "Queue",
+                name: "Queue (#{length(state.queue)} track(s))",
                 value: queue_string(state.queue)
               }
             ]
