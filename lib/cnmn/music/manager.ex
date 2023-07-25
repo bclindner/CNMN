@@ -38,7 +38,7 @@ defmodule CNMN.Music.Manager do
 
       case data do
         nil -> nil
-        data -> Voice.play(guild_id, data.url, data.type)
+        data -> Voice.play(guild_id, data.url, data.type, volume: 0.5)
       end
     end
   end
