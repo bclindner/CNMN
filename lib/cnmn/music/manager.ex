@@ -130,7 +130,7 @@ defmodule CNMN.Music.Manager do
   def handle_call({:peek, guild_id}, _from, states) do
     track =
       get_state(states, guild_id).queue
-      |> Enum.fetch(0)
+      |> Enum.fetch!(0)
 
     {:reply, track, states}
   end
