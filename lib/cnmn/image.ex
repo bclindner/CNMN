@@ -3,6 +3,7 @@ defmodule CNMN.Image do
   Image transformation functions.
   """
 
+  require Image
   alias Mogrify, as: Mog
   alias CNMN.{HTTPClient, Util}
   alias CNMN.Util.Reply
@@ -16,22 +17,37 @@ defmodule CNMN.Image do
     "#{pct1}%x#{pct2}%"
   end
 
-  def crunch(infile, outpath, factor \\ 0.5) do
-    outfile = Path.join(outpath, "crunch.png")
+  def crunch(factor \\ 0.5) do
+    fn infile, outpath ->
+      outfile = Path.join(outpath, "crunch.png")
 
-    Mog.open(infile)
-    |> Mog.custom("liquid-rescale", factorstring(factor))
-    |> Mog.save(path: outfile)
+      Mog.open(infile)
+      |> Mog.custom("liquid-rescale", factorstring(factor))
+      |> Mog.save(path: outfile)
 
-    outfile
+      outfile
+    end
+  end
+
+  def meme(toptext, bottomtext \\ "") do
+    fn infile, outpath ->
+      outfile = Path.join(outpath, "meme.png")
+
+      Image.open!(infile)
+      |> Image.meme!(toptext, text: bottomtext)
+      |> Image.write!(outfile, minimize_file_size: true)
+
+      outfile
+    end
   end
 
   @doc """
   Perform a generic image transformation process on a message.
 
   This process finds a URL in the mssage or its replies, then saves it to a
-  temporary file, transforms it with the ImageMagick wrapper Mogrify, then
-  returns it as a reply.
+  temporary file, transforms it with a function taking the input file path and
+  the directory to save the output and outputting the output filepath, then
+  returns the saved file as a reply.
 
   If the function cannot find a URL, it replies to the user.
   """

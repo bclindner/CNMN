@@ -30,7 +30,8 @@ defmodule CNMN.MixProject do
       },
       {:mogrify, "~> 0.9.2"},
       {:temp, "~> 0.4"},
-      {:jason, "~> 1.3"}
+      {:jason, "~> 1.3"},
+      {:image, "~> 0.42.0"}
     ]
   end
 end
