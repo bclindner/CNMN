@@ -12,8 +12,7 @@ config :cnmn, :router,
     CNMN.Command.Help,
     CNMN.Command.Ping,
     CNMN.Command.Music,
-    CNMN.Command.Crunch,
-    CNMN.Command.Meme
+    CNMN.Command.Transform
   ]
 
 config :nostrum,

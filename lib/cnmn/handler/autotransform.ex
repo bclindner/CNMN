@@ -3,7 +3,7 @@ defmodule CNMN.Handler.Autotransform do
   Handler for automatically transforming images in channels.
   """
   use CNMN.Handler
-  alias CNMN.Image
+  alias CNMN.Media
   require Logger
 
   defp channels, do: Application.get_env(:cnmn, :autotransform, %{})
@@ -14,7 +14,7 @@ defmodule CNMN.Handler.Autotransform do
         :noop
 
       value ->
-        Image.transform(msg, value, quiet: true)
+        Media.transform(msg, value, quiet: true)
     end
   end
 end
