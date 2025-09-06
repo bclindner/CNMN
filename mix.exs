@@ -5,7 +5,7 @@ defmodule CNMN.MixProject do
     [
       app: :cnmn,
       version: "1.3.1",
-      elixir: "~> 1.14",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
