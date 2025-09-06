@@ -6,7 +6,7 @@ defmodule CNMN.Media do
   use FFmpex.Options
   require Image
   alias Mogrify, as: Mog
-  alias CNMN.{HTTPClient, Util}
+  alias CNMN.HTTPClient
   alias CNMN.Util.Reply
   require Logger
 
@@ -16,6 +16,13 @@ defmodule CNMN.Media do
     pct1 = round(pct1 * 100)
     pct2 = round(pct2 * 100)
     "#{pct1}%x#{pct2}%"
+  end
+
+  defp is_gif!(file) do
+    case FFprobe.format_names(file) do
+      {:ok, names} -> Enum.member?(names, "gif")
+      {_, err_type} -> raise "Failed to run FFprobe: " ++ err_type
+    end
   end
 
   def crunch(factor \\ 0.5) do
@@ -45,26 +52,28 @@ defmodule CNMN.Media do
   def fast() do
     fn infile, outpath ->
       # check if file is a gif
-      is_gif = case FFprobe.format_names(infile) do
-        {:ok, names} -> Enum.member?(names, "gif")
-        {_, err_type} -> raise "Failed to run FFprobe: " ++ err_type
-      end
-      outfile = if is_gif do
-        Path.join(outpath, "fast.gif")
-      else
-        Path.join(outpath, "fast.mp4")
-      end
-      cmd = FFmpex.new_command
-      |> add_global_option(option_y())
-      |> add_input_file(infile)
-      |> add_output_file(outfile)
-      |> add_file_option(option_vf("setpts=0.5*PTS"))
-      |> add_file_option(option_af("atempo=2.0"))
-      |> add_file_option(option_loop(0))
-      result = case execute(cmd) do
-        {:ok, _} -> outfile
-        {_, output} -> raise "FFmpex failed: " ++ output
-      end
+      outfile =
+        if is_gif!(infile) do
+          Path.join(outpath, "fast.gif")
+        else
+          Path.join(outpath, "fast.mp4")
+        end
+
+      cmd =
+        FFmpex.new_command()
+        |> add_global_option(option_y())
+        |> add_input_file(infile)
+        |> add_output_file(outfile)
+        |> add_file_option(option_vf("setpts=0.5*PTS"))
+        |> add_file_option(option_af("atempo=2.0"))
+        |> add_file_option(option_loop(0))
+
+      result =
+        case execute(cmd) do
+          {:ok, _} -> outfile
+          {_, output} -> raise "FFmpex failed: " ++ output
+        end
+
       result
     end
   end
@@ -79,39 +88,26 @@ defmodule CNMN.Media do
 
   If the function cannot find a URL, it replies to the user.
   """
-  def transform(msg, transformer, opts \\ []) do
-    unless msg.author.bot do
-      id = to_string(msg.id)
-      Temp.track!()
-      temppath = Temp.mkdir!(id)
-      infile = Path.join(temppath, "input")
+  def transform(msg, url, transformer) do
+    Temp.track!()
+    id = to_string(msg.id)
+    temppath = Temp.mkdir!(id)
+    infile = Path.join(temppath, "input")
 
-      case Util.find_media(msg) do
-        nil ->
-          unless Keyword.get(opts, :quiet) == true do
-            Reply.text!(
-              "Couldn't find any media - did you upload an image/video, or reply to an uploaded one?",
-              msg
-            )
-          end
+    Logger.info("Running media transformer",
+      url: url,
+      msgid: msg.id,
+      dir: temppath,
+      transformer: inspect(transformer)
+    )
 
-        url ->
-          Logger.info("Running media transformer",
-            url: url,
-            msgid: msg.id,
-            dir: temppath,
-            transformer: inspect(transformer)
-          )
+    HTTPClient.download!(url, infile)
 
-          HTTPClient.download!(url, infile)
+    transformer.(infile, temppath)
+    |> Reply.file!(msg)
 
-          transformer.(infile, temppath)
-          |> Reply.file!(msg)
-
-          Logger.info("Transformation successful",
-            msgid: msg.id
-          )
-      end
-    end
+    Logger.info("Transformation successful",
+      msgid: msg.id
+    )
   end
 end

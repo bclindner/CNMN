@@ -4,6 +4,7 @@ defmodule CNMN.Command.Transform do
 
   use CNMN.Command
   alias CNMN.Media
+  alias CNMN.Util
 
   def usage(cmdname),
     do: """
@@ -13,15 +14,17 @@ defmodule CNMN.Command.Transform do
     """
 
   def handle(["crunch"], msg) do
-    Media.transform(msg, Media.crunch())
+    url = Util.find_media!(msg)
+    Media.transform(msg, url, Media.crunch())
   end
 
   def handle(["fast"], msg) do
-    Media.transform(msg, Media.fast())
+    url = Util.find_media!(msg)
+    Media.transform(msg, url, Media.fast())
   end
 
   def handle(["meme" | text], msg) do
-    Media.transform(msg, Media.meme(Enum.join(text, " ")))
+    url = Util.find_media!(msg)
+    Media.transform(msg, url, Media.meme(Enum.join(text, " ")))
   end
-
 end

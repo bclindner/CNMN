@@ -103,7 +103,7 @@ defmodule CNMN.Command.Music do
   def handle([], msg) do
     state = Manager.get_state(msg.guild_id)
 
-    unless state.current == nil do
+    if state.current != nil do
       Reply.embed!(
         %Embed{
           fields: [
@@ -129,9 +129,9 @@ defmodule CNMN.Command.Music do
   def handle(["play", url], msg) do
     channel_id = ensure_user_in_voice(msg)
 
-    unless channel_id == nil do
+    if channel_id != nil do
       # if we are not currently playing, clear the queue
-      unless Voice.playing?(msg.guild_id) do
+      if !Voice.playing?(msg.guild_id) do
         Manager.clear(msg.guild_id)
       end
 

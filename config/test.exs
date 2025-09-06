@@ -1,3 +1,3 @@
 import Config
 
-config :cnmn, testMode: :true
+config :cnmn, testMode: true

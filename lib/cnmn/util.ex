@@ -3,15 +3,39 @@ defmodule CNMN.Util do
   alias Nostrum.Struct, as: Discord
   alias Nostrum.Api
   require Logger
+  alias CNMN.Util.Reply
 
   # regex for discord images (specifically ones we can process)
   defp discord_media_regex(content, options) do
     extensions = Keyword.get(options, :extensions, ["png", "jpg", "webp", "mp4", "gif"])
-    regex = ~r/^https:\/\/(?:media|cdn).discordapp.(?:com|net)\/attachments\/[0-9]+\/[0-9]+\/\S+.(#{Enum.join(extensions,"|")})$/
-    case Regex.scan(regex,content) do
+
+    regex =
+      ~r/^https:\/\/(?:media|cdn).discordapp.(?:com|net)\/attachments\/[0-9]+\/[0-9]+\/\S+.(#{Enum.join(extensions, "|")})$/
+
+    case Regex.scan(regex, content) do
       [url | _] -> url
       _ -> []
     end
+  end
+
+  def find_media!(msg, options \\ []) do
+    url =
+      if msg.author.bot do
+        nil
+      else
+        find_media(msg)
+      end
+
+    if url == nil do
+      if Keyword.get(options, :quiet) != true do
+        Reply.text!(
+          "Couldn't find any media - did you upload an image/video, or reply to an uploaded one?",
+          msg
+        )
+      end
+    end
+
+    url
   end
 
   @spec find_media(Discord.Message.t(), Integer.t(), Keyword.t()) :: String.t() | nil

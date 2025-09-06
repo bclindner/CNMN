@@ -6,7 +6,7 @@ defmodule CNMN.HTTPClient do
   @doc "Default headers."
   def headers,
     do: [
-      {'User-Agent', 'CNMN/#{CNMN.Application.version()}'}
+      {~c"User-Agent", ~c"CNMN/#{CNMN.Application.version()}"}
     ]
 
   @spec parse_options(request_options, headers, keyword()) :: {keyword(), keyword()}

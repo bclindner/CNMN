@@ -17,7 +17,7 @@ defmodule CNMN.Music.Track do
     # quick verification - let's make sure this is https. we do this primarily
     # so that people can't abuse ytsearch and other plugins that will break our
     # embeds and other discord functions that require us to input URLS
-    unless String.starts_with?(url, "https://") do
+    if !String.starts_with?(url, "https://") do
       raise "link is invalid"
     end
 
