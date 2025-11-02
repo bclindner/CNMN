@@ -3,18 +3,21 @@ defmodule CNMN.Handler.Autotransform do
   Handler for automatically transforming images in channels.
   """
   use CNMN.Handler
-  alias CNMN.Media
+  alias CNMN.{Media,Util}
   require Logger
 
   defp channels, do: Application.get_env(:cnmn, :autotransform, %{})
 
   def handle_event(:MESSAGE_CREATE, msg) do
-    case Map.get(channels(), msg.channel_id) do
-      nil ->
+    case Map.fetch(channels(), msg.channel_id) do
+      :error ->
         :noop
 
-      value ->
-        Media.transform(msg, value, quiet: true)
+      {:ok, value} ->
+        if msg.author.bot == nil do
+          url = Util.find_media!(msg)
+          Media.transform(msg, url, value)
+        end
     end
   end
 end
