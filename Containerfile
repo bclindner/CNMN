@@ -21,14 +21,14 @@ WORKDIR /app
 RUN rm -rf /build
 
 # set up runtime environment
-FROM docker.io/debian:bullseye
+FROM docker.io/debian:trixie
 
 # resolve locale issue
 # (see https://stackoverflow.com/q/32407164)
 ENV LANG=C.UTF-8
 # install deps
 RUN apt-get update && apt-get install -y ffmpeg python3 python3-pip imagemagick
-RUN pip install yt-dlp
+RUN pip install yt-dlp --break-system-packages
 # copy from the previous container
 WORKDIR /app
 COPY --from=build /app .
