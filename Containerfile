@@ -1,5 +1,5 @@
 # build step
-FROM docker.io/elixir:1.14 AS build
+FROM docker.io/elixir:1.18 AS build
 
 ENV MIX_ENV=prod
 WORKDIR /build
@@ -28,7 +28,7 @@ FROM docker.io/debian:bullseye
 ENV LANG=C.UTF-8
 # install deps
 RUN apt-get update && apt-get install -y ffmpeg python3 python3-pip imagemagick
-RUN pip install yt-dlp==2023.07.06
+RUN pip install yt-dlp
 # copy from the previous container
 WORKDIR /app
 COPY --from=build /app .
