@@ -15,8 +15,10 @@ defmodule CNMN.Handler.Autotransform do
 
       {:ok, value} ->
         if msg.author.bot == nil do
-          url = Util.find_media!(msg)
-          Media.transform(msg, url, value)
+          case Util.find_media!(msg, quiet: true) do
+            nil -> :noop
+            url -> Media.transform(msg, url, value)
+          end
         end
     end
   end
