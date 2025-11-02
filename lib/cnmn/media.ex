@@ -21,8 +21,7 @@ defmodule CNMN.Media do
   defp is_gif!(file) do
     case FFprobe.format_names(file) do
       {:ok, names} -> Enum.member?(names, "gif")
-      {_, error_type} -> raise "Failed to run FFprobe: " ++ to_string(error_type)
-
+      {_, error_type} -> raise "Failed to run FFprobe: " <> to_string(error_type)
     end
   end
 
@@ -72,7 +71,7 @@ defmodule CNMN.Media do
       result =
         case execute(cmd) do
           {:ok, _} -> outfile
-          {_, error_type} -> raise "Failed to run FFprobe: " ++ to_string(error_type)
+          {_, error_type} -> raise "Failed to run FFprobe: " <> to_string(error_type)
         end
 
       result
