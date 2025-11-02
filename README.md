@@ -38,6 +38,6 @@ a shell with the above dependencies to skip a step.
 
 ## Using the bot
 
-Use `c-help` (if you set BOT_PREFIX, replace `c-` with whatever prefix you
-provided) to see commands - you should be able to easily explore them from
-there.
+Use `c-help` to see commands. (Or, if you set BOT_PREFIX, replace `c-` with
+whatever prefix you provided) You should be able to easily explore what's
+possible in the bot from there.
